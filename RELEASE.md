@@ -1,12 +1,12 @@
 # Releases
 
-Each release from this repository contains .ova files for supported versions of Kubernetes, and a file called **driver-vbox-images.json** which describes these releases. The location on these files in the GitHub release is burned into the corresponding version of the vbox driver.
+Each release from this repository contains .qcow2 files for supported versions of Kubernetes, and a file called **driver-qemu-images.json** which describes these releases. The location on these files in the GitHub release is burned into the corresponding version of the QEMU driver.
 
-## .ova files
+## .qcow2 files
 
-These files can be built by manually following the instructions in [BUILDING.md](BUILDING.md), or by running the Packer scripts as detailed in [PACKER.md](PACKER.md).
+These files can be built by running the included HashiCorp Packer scripts as detailed in [PACKER.md](PACKER.md).
 
-## driver-vbox-images.json
+## driver-qemu-images.json
 
 The schema for this file is as follows:
 
@@ -14,9 +14,9 @@ The schema for this file is as follows:
 {
     "KUBERNETES VERSION": {
         "ImageK8sVersion": "KUBERNETES VERSION (must match key above)",
-        "ImageChecksum": "SHA256 CHECKSUM OF OVA FILE",
+        "ImageChecksum": "SHA256 CHECKSUM OF QCOW2 FILE",
         "ImageStatus": "NotDownloaded",
-        "ImageSourceURL": "PATH TO OVA FILE IN RELEASE",
+        "ImageSourceURL": "PATH TO QCOW2 FILE IN RELEASE",
         "ImageDeprecated": false
     },...
 }
@@ -26,33 +26,26 @@ A sample is provided below:
 
 ```json
 {
-    "1.24": {
-        "ImageK8sVersion": "1.24",
-        "ImageChecksum": "94e6ae9d4238a740dff0dd8156c0da4b23b5d969d5c94116c257bbc2533258b4",
-        "ImageStatus": "NotDownloaded",
-        "ImageSourceURL": "https://github.com/kuttiproject/driver-vbox-images/releases/download/v0.2/kutti-k8s-1.24.ova",
+    "1.35": {
+        "ImageK8sVersion": "1.35",
+        "ImageChecksum": "1630fbfef783c490b83d17dd21f2e8243ea7120fa2917455b8d1c1294a565362",
+        "ImageSourceURL": "https://github.com/kuttiproject/driver-qemu-images/releases/download/v0.1/kutti-1.35.qcow2",
+        "ImageStatus": "Downloaded",
         "ImageDeprecated": false
     },
-    "1.23": {
-        "ImageK8sVersion": "1.23",
-        "ImageChecksum": "8b18b91c670b62e91a0b179753a1c1b778ea5e1ffa300ca1309ec7098d8dbbc3",
-        "ImageStatus": "NotDownloaded",
-        "ImageSourceURL": "https://github.com/kuttiproject/driver-vbox-images/releases/download/v0.2/kutti-k8s-1.23.ova",
+    "1.36": {
+        "ImageK8sVersion": "1.36",
+        "ImageChecksum": "3889fa564078c7fd5297535fbb1cf80856a5c630b73ddc0fc6132cae2e0a9ad8",
+        "ImageSourceURL": "https://github.com/kuttiproject/driver-qemu-images/releases/download/v0.1/kutti-1.36.qcow2",
+        "ImageStatus": "Downloaded",
         "ImageDeprecated": false
     },
-    "1.22": {
-        "ImageK8sVersion": "1.22",
-        "ImageChecksum": "538e0841d6addae7e136b700bba6b506bd92396e862bb13c66c84454e058b5a7",
-        "ImageStatus": "NotDownloaded",
-        "ImageSourceURL": "https://github.com/kuttiproject/driver-vbox-images/releases/download/v0.2/kutti-k8s-1.22.ova",
+    "1.37": {
+        "ImageK8sVersion": "1.37",
+        "ImageChecksum": "177f4fba665c19086437fde195cf67f0381a9fda616c5dc81e6ff6b0cffe2628",
+        "ImageSourceURL": "https://github.com/kuttiproject/driver-qemu-images/releases/download/v0.1/kutti-1.37.qcow2",
+        "ImageStatus": "Downloaded",
         "ImageDeprecated": false
-    },
-    "1.21": {
-        "ImageK8sVersion": "1.21",
-        "ImageChecksum": "5ceebd3c8949b8c169fc5e12e0d590e08f64feea85f47a437e21c48eb49ec6f5",
-        "ImageStatus": "NotDownloaded",
-        "ImageSourceURL": "https://github.com/kuttiproject/driver-vbox-images/releases/download/v0.2/kutti-k8s-1.21.ova",
-        "ImageDeprecated": true
     }
 }
 ```

@@ -10,8 +10,9 @@ crash.log
 # iso file source
 iso/
 
-# ova output directories
+# output directories
 output-*/
+out/
 
 # Editor settings
 .vscode/

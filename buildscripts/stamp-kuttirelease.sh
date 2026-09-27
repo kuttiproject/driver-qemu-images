@@ -6,8 +6,9 @@ if [ "$(id -ur)" -ne "0" ]; then
 fi
 
 cat > /etc/kutti-release <<EOF_RELEASESTAMP
-Kutti VirtualBox Image Version: ${VM_VERSION}
+Kutti QEMU Image Version: ${VM_VERSION}
 Debian Linux Version: $(cat /etc/debian_version)
 Containerd Version: $(containerd -v | cut -f3 -d " ")
 Kubernetes Version: $(kubectl version --client -o yaml | grep "gitVersion" | cut -f2 -d ":")
+Helm Version: $(helm version --short)
 EOF_RELEASESTAMP

@@ -7,33 +7,18 @@ fi
 
 export DEBIAN_FRONTEND=noninteractive
 
-# Install VirtualBox Guest Additions
-echo "==> Installing VirtualBox guest additions"
-
-apt-get update
-
-## Install build packages
-echo "Installing build packages..."
-apt-get install -y dkms build-essential "linux-headers-$(uname -r)" libxt6 libxmu6
-echo "Done."
-   
-## Assuming that the Guest Additions CD has been "attached"
-echo "Building guest additions..."
-mount -r /media/cdrom
-BUILDERR=0
-sh /media/cdrom/VBoxLinuxAdditions.run --nox11|| BUILDERR=$? 
-if [ "$BUILDERR" != "2" ] && [ "$BUILDERR" != "0" ]; then
-    echo 2>&1 "Error while building guest additions: code $BUILDERR"
-    exit $BUILDERR
-fi
-umount /media/cdrom
+# Remove the standard kernel, because it has been replaced by the
+# cloud kernel in step 1
+echo "==> Removing standard kernel"
+# apt-get purge -y linux-image-amd64 $(dpkg-query -f '${Package}\n' -W 'linux-image-*-amd64' | grep -v 'cloud')
+dpkg-query -f '${Package}\n' -W 'linux-image-*-amd64' | grep -v 'cloud' | xargs -r apt-get purge -y linux-image-amd64
 echo "Done."
 
 # Update GRUB settings
 echo "==> Updating GRUB settings"
 
 ## Set boot loader timeout to 0
-echo "Seting boot loader timeout"
+echo "Seting boot loader timeout..."
 sed -i 's/GRUB_TIMEOUT=\(.*\)/GRUB_TIMEOUT=0/g' /etc/default/grub;
 echo "Done."
 
@@ -47,15 +32,17 @@ echo "Done."
 ##   https://github.com/hashicorp/packer/issues/866
 ## and the solution was picked up from:
 ##   https://github.com/chef/bento/blob/master/packer_templates/debian/scripts/networking.sh
+## The setting has been carried over into non-virtualbox drivers
+## because it works well.
 
 echo "Disabling predictable network interface names..."
 ## This script assumes that the names of all interfaces in
 ## /etc/network/interfaces will be replaced with eth0. This works
-## for us, because we use only one interface connected to a NAT
-## network.
+## for us, because we use only one interface connected to the
+## standard network.
 sed -i 's/en[[:alnum:]]*/eth0/g' /etc/network/interfaces;
 ## Add kernel parameter to disable predictable interface names
-sed -i 's/GRUB_CMDLINE_LINUX="\(.*\)"/GRUB_CMDLINE_LINUX="net.ifnames=0 biosdevname=0 \1"/g' /etc/default/grub;
+sed -i 's/GRUB_CMDLINE_LINUX="\(.*\)"/GRUB_CMDLINE_LINUX="console=ttyS0 net.ifnames=0 biosdevname=0 \1"/g' /etc/default/grub;
 echo "Done."
 
 ## Update grub
@@ -65,11 +52,13 @@ echo "Done."
 
 # Add/edit directories and files
 
-echo "==> Adding/editing directories and files..."
+echo "==> Adding/editing directories and files"
 
 ## Patch networking
 ## Replace the /etc/network/interfaces file completely, because 
 ## there seems to be a problem with VirtualBox 7 on Linux
+## This approach has been carried forward to non-VirtualBox
+## derivers because it works well.
 cat >/etc/network/interfaces <<EOINTERFACES
 # This file describes the network interfaces available on your system
 # and how to activate them. For more information, see interfaces(5).
@@ -89,17 +78,21 @@ EOINTERFACES
 echo "pre-up sleep 2" >> /etc/network/interfaces
 
 ## Set up directory for later copying of kutti interface scripts
-mkdir -p /home/kuttiadmin/kutti-installscripts
-chown kuttiadmin:kuttiadmin /home/kuttiadmin/kutti-installscripts
+mkdir -p /opt/kutti/scripts
+chown kuttiadmin:kuttiadmin /opt/kutti/scripts
 
 ## Set up basic motd
 echo "Welcome to kutti." > /etc/motd
 
+echo "Done."
+
 # Add required system packages
 echo "==> Adding required system packages"
 
-echo "Installing bash completion, socat, vim and curl..."
-apt-get install -y apt-transport-https bash-completion socat vim curl
+apt-get update
+
+echo "Installing ca-certificates, gpg, iptables, bash completion, socat, vim and curl..."
+apt-get install -y ca-certificates gpg iptables apt-transport-https bash-completion socat vim curl
 echo "Done."
 
 # Add user1
@@ -109,4 +102,4 @@ chpasswd <<EOPASSWD
 user1:Pass@word1
 EOPASSWD
 adduser user1 sudo
-
+echo "Done."
